@@ -8,9 +8,20 @@ $app = new \Slim\Slim();
 $app->get('/', function() use ($app){
     echo "Welcome to REST API";
 });
-$app->get('/hello/:name', function($name) use ($app){
-    echo "Hi $name, welcome to the REST API's";
+$app->get('/tasks', function() use ($app){
+
+    $task = getTasks();
+    echo json_encode($task);
+    
 });
 
+function getTasks(){
+     $task[] = array(
+        array('id'=>'1','description'=>'learn REST','done' => 'false'),
+        array('id'=>'2','description'=>'learn JavaScript','done' => 'false'),
+          
+        );
+    return $task;
+}
 $app->run();
 ?>
