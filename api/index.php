@@ -42,10 +42,18 @@ $app->post('/tasks', function() use($app){
     
    $taskJson =  $app->request()->getBody(); 
    $task = json_decode($taskJson);
-   //print_r($task);
-    echo $task->description;
+    if($task ){
+        echo "{$task->description} added";
+        
+    }
+    else{
+        $app->response()->setstatus(400);
+        echo "MalFormat JSON";
+        
+    }
     
 });
+
 
 //TODO move it to a DAO class
 function getTasks(){
