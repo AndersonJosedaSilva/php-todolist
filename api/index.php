@@ -106,15 +106,6 @@ $app->delete('/tasks/:id', function($id) use ($app){
 });
 
 
-//TODO move it to a DAO class
-function getTasks(){
-     $tasks = array(
-        array('id'=>'1','description'=>'learn REST','done' => 'false'),
-        array('id'=>'2','description'=>'learn JavaScript','done' => 'false'),
-          
-        );
-    return $tasks;
-}
 
 
 $app->run();
