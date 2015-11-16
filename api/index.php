@@ -9,7 +9,7 @@ $app->get('/', function() use ($app){
     echo "Welcome to REST API";
 });
 
-//http://domain.address/api/tasks
+//http://domain/api/tasks
 $app->get('/tasks', function() use ($app){
 
     $tasks = getTasks();
@@ -18,7 +18,18 @@ $app->get('/tasks', function() use ($app){
     echo json_encode($tasks);
     
 });
-
+//http://domain/api/tasks/1
+//get a task by id
+/*
+http get http://domain/api/tasks/1
+RESPONSE 200 ok
+ {
+    "id": "1",
+    "description": "learn REST",
+    "done": "false"
+  }
+  RESPONSE 204 no content
+*/
 $app->get('/tasks/:id',function($id) use ($app){
    $tasks = getTasks();
    $index = array_search($id,array_column($tasks,'id'));
@@ -38,6 +49,16 @@ $app->get('/tasks/:id',function($id) use ($app){
    
 });
 
+/*
+HTTP POST http://domain/api/tasks
+REQUEST  body
+{
+ "description": "learn REST",
+}
+RESPONSE  Body
+Learn REST added
+
+*/
 $app->post('/tasks', function() use($app){
     
    $taskJson =  $app->request()->getBody(); 
@@ -64,5 +85,7 @@ function getTasks(){
         );
     return $tasks;
 }
+
+
 $app->run();
 ?>
