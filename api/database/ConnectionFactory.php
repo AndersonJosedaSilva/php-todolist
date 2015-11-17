@@ -1,9 +1,14 @@
 <?php
+
+ 
+ 
+ 
 class ConnectionFactory{
     
-    
-    
     public function getDB(){
+        $connection = self::getConnection();
+        $db = new NotORM($connection);
+        return $db;
         
     }
     

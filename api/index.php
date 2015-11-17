@@ -1,6 +1,6 @@
 <?php
 require 'vendor/autoload.php';
-
+require 'tasks/TaskService.php';
 
 
 $app = new \Slim\Slim();
@@ -9,15 +9,20 @@ $app->get('/', function() use ($app){
     echo "Welcome to REST API";
 });
 
-//http://domain/api/tasks
-$app->get('/tasks', function() use ($app){
 
-    $tasks = getTasks();
+
+//http://domain/api/tasks
+$app->get('/tasks1', function() use ($app){
+
+    $tasks = TaskService::listTasks();
     //Define qual é o tipo de resposta
     $app->response()->header('Content-type','application/json');
     echo json_encode($tasks);
     
 });
+
+
+
 //http://domain/api/tasks/1
 //get a task by id
 /*
