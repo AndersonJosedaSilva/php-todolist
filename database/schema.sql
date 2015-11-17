@@ -6,6 +6,4 @@ CREATE TABLE tasks (
 )
 ENGINE=InnoDB;
 
-INSERT INTO tasks (id, description, done) VALUES 
-    (1, 'Learn REST', false),
-    (2, 'Learn JavaScript', true);
+INSERT INTO tasks (description, done) VALUES ('Learn REST', false);

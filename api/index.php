@@ -1,117 +1,130 @@
 <?php
 require 'vendor/autoload.php';
+require 'database/ConnectionFactory.php';
 require 'tasks/TaskService.php';
 
 
 $app = new \Slim\Slim();
-
-$app->get('/', function() use ($app){
-    echo "Welcome to REST API";
+// http://hostname/api/
+$app->get('/', function() use ( $app ) {
+    echo "Welcome to Task REST API";
 });
-
-
-
-//http://domain/api/tasks
-$app->get('/tasks1', function() use ($app){
-
-    $tasks = TaskService::listTasks();
-    //Define qual é o tipo de resposta
-    $app->response()->header('Content-type','application/json');
-    echo json_encode($tasks);
-    
-});
-
-
-
-//http://domain/api/tasks/1
-//get a task by id
 /*
-http get http://domain/api/tasks/1
-RESPONSE 200 ok
- {
-    "id": "1",
-    "description": "learn REST",
-    "done": "false"
+HTTP GET http://domain/api/tasks
+RESPONSE 200 OK
+[
+  {
+    "id": 1,
+    "description": "Learn REST",
+    "done": false
+  },
+  {
+    "id": 2,
+    "description": "Learn JavaScript",
+    "done": false
+  },
+  {
+    "id": 3,
+    "description": "Learn English",
+    "done": false
   }
-  RESPONSE 204 no content
+]
 */
-$app->get('/tasks/:id',function($id) use ($app){
-   $tasks = getTasks();
-   $index = array_search($id,array_column($tasks,'id'));
-   
-   if($index > -1){
-       
-   $app->response()->header('Content-Type','application/json');
-   echo json_encode($tasks[$index]);
-    
-   }
-   else{
-    $app->response()->setStatus(204);
-    echo "Not found";
-        
-   }
-   
-   
+$app->get('/tasks/', function() use ( $app ) {
+    $tasks = TaskService::listTasks();
+    $app->response()->header('Content-Type', 'application/json');
+    echo json_encode($tasks);
 });
-
+/*
+HTTP GET http://domain/api/tasks/1
+RESPONSE 200 OK
+{
+  "id": 1,
+  "description": "Learn REST",
+  "done": false
+}
+RESPONSE 204 NO CONTENT
+*/
+$app->get('/tasks/:id', function($id) use ( $app ) {
+    $task = TaskService::getById($id);
+    
+    if($task) {
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode($task);
+    }
+    else {
+        $app->response()->setStatus(204);
+    }
+});
 /*
 HTTP POST http://domain/api/tasks
-REQUEST  body
+REQUEST Body
 {
- "description": "learn REST",
+  "description": "Learn REST",
 }
-RESPONSE  Body
+RESPONSE 200 OK Body
 Learn REST added
-
 */
-$app->post('/tasks', function() use($app){
-    
-   $taskJson =  $app->request()->getBody(); 
-   $task = json_decode($taskJson);
-    if($task ){
-        echo "{$task->description} added";
-        
+$app->post('/tasks/', function() use ( $app ) {
+    $taskJson = $app->request()->getBody();
+    $newTask = json_decode($taskJson, true);
+    if($newTask) {
+        $task = TaskService::add($newTask);
+        echo "Task {$task['description']} added";
     }
-    else{
-        $app->response()->setstatus(400);
-        echo "MalFormat JSON";
-        
+    else {
+        $app->response->setStatus(400);
+        echo "Malformat JSON";
     }
-    
 });
 /*
 HTTP PUT http://domain/api/tasks/1
-REQUEST  body
+REQUEST Body
 {
-    'id':1,
-    'description':'chuchu',
-    'done': false
+  "id": 1,
+  "description": "Learn REST",
+  "done": false
 }
-RESPONSE  200 ok
+RESPONSE 200 OK
 {
-    'id':1,
-    'description':'chuchu',
-    'done': false
+  "id": 1,
+  "description": "Learn REST",
+  "done": false
 }
-
 */
-$app->put('/tasks/:id',function($id) use ($app){
-    echo $app->request()->getBody();
+$app->put('/tasks/', function() use ( $app ) {
+    $taskJson = $app->request()->getBody();
+    $updatedTask = json_decode($taskJson, true);
     
+    if($updatedTask && $updatedTask['id']) {
+        if(TaskService::update($updatedTask)) {
+          echo "Task {$updatedTask['description']} updated";  
+        }
+        else {
+          $app->response->setStatus('404');
+          echo "Task not found";
+        }
+    }
+    else {
+        $app->response->setStatus(400);
+        echo "Malformat JSON";
+    }
 });
 /*
 HTTP DELETE http://domain/api/tasks/1
-
-RESPONSE  200 ok
-task deleted
-
+RESPONSE 200 OK
+Task with id = 1 was deleted
+RESPONSE 404
+Task with id = 1 not found
 */
-$app->delete('/tasks/:id', function($id) use ($app){
-    echo $id;
+$app->delete('/tasks/:id', function($id) use ( $app ) {
+    if(TaskService::delete($id)) {
+      echo "Task with id = $id was deleted";
+    }
+    else {
+      $app->response->setStatus('404');
+      echo "Task with id = $id not found";
+    }
 });
-
-
-
-
 $app->run();
 ?>
